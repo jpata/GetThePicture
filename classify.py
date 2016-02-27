@@ -1,10 +1,28 @@
 import sklearn, pickle, os
 import get_data
+import numpy as np
 
 f = open("/Users/joosep/Dropbox/diplohack_team2/bdt2.pkl", "r")
 s = f.read()
 clf = pickle.loads(s)
-vs = ['cela_hist_0', 'cela_hist_10', 'cela_hist_20', 'cela_hist_30']
+vs = ['cela_hist_0',
+ 'cela_hist_10',
+ 'cela_hist_20',
+ 'cela_hist_30',
+ 'cela_hist_40',
+ 'cela_hist_50',
+ 'cela_hist_60',
+ 'bstat_64_0',
+ 'bstat_64_1',
+ 'bstat_64_2',
+ 'bstat_64_3',
+ 'bstat_64_4',
+ 'bstat_64_5',
+ 'bstat_64_6',
+ 'bstat_64_7',
+ 'bstat_64_8',
+ 'bstat_64_9']
+
 from PIL import Image
 import uuid
 
@@ -23,9 +41,11 @@ def score(img):
     if not os.path.isfile(img):
         print "not an image"
         return -1
-    sc = clf.predict_proba(
-        get_data.get_image_data(img)[vs]
-    )[0,1]
+    dt = get_data.get_image_data(img)[vs]
+    for v in vs:
+        dt.loc[np.isnan(dt[v]), v] = 0
+        dt.loc[np.isinf(dt[v]), v] = 0
+    sc = clf.predict_proba(dt)[0,0]
     return sc
 
 import multiprocessing

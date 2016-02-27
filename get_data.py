@@ -25,30 +25,10 @@ def get_ela(src):
     src_img.close()
     return ela_im
 
-def blockstats(src, s):
-    img = Image.open(src).convert("RGB")
-    blocks = []
-    for x in range(0, img.size[1],s):
-        for y in range(0, img.size[0],s):
-            block = np.asarray(img)[x:x+s,y:y+s]
-            if block.shape != (s, s, 3):
-                continue
-            blocks += [tuple(block.flatten())]
-    #sb = blocks
-    sb = sorted(blocks)
-    
-    vs = []
-    for i in range(len(sb)-2):
-        v = np.sqrt(np.sum(np.power(np.array(sb[i])-np.array(sb[i+1]), 2)))
-        vs += [v]
-    vs = np.array(vs)
-    img.close()
-    return np.percentile(vs, range(0,100,5))
-
 bf = cv2.BFMatcher(cv2.NORM_L2)
 def blockstats_surf(src, s):
     surf = cv2.SURF(1000)
-    img = cv2.imread(src)
+    img = cv2.imread(src, cv2.CV_LOAD_IMAGE_GRAYSCALE)
     blocks = []
     for x in range(0, img.shape[1],s):
         for y in range(0, img.shape[0],s):
@@ -67,14 +47,14 @@ def blockstats_surf(src, s):
                     dists = [m.distance for m in matches]
                     blockdistances += [(dists, ibl1, ibl2)]
     bls = sorted([bl[0][0] for bl in blockdistances])
-    hbls = np.histogram(bls, normed=True, bins=np.linspace(0,5,11))
+    hbls = np.histogram(bls, normed=True, bins=np.linspace(0,2,11))
     return hbls[0]
 
 def get_image_data(fname):
     print fname
     data = dict()
     diff = get_ela(fname)
-    ela_hist = np.array(diff.convert('LA').histogram()).reshape(512/16, 16).sum(1)
+    ela_hist = np.array(diff.convert('LA').histogram()).reshape(512/8, 8).sum(1)
     diff.close()
     ela_hist = ela_hist / float(sum(ela_hist))
     df_row = pandas.DataFrame()
@@ -117,8 +97,8 @@ if __name__ == "__main__":
     pool = multiprocessing.Pool(processes=4)
 
     print "mapping"
-    d1 = map(get_image_data, data_bkg)
-    d2 = map(get_image_data, data_sig)
+    d1 = pool.map(get_image_data, data_bkg)
+    d2 = pool.map(get_image_data, data_sig)
 
     print "concatting"
     bkg = pandas.concat(d1)
