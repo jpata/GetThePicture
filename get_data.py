@@ -45,28 +45,30 @@ def blockstats(src, s):
     img.close()
     return np.percentile(vs, range(0,100,5))
 
+bf = cv2.BFMatcher(cv2.NORM_L2)
 def blockstats_surf(src, s):
     surf = cv2.SURF(1000)
-    img = cv2.imread(src, cv2.CV_LOAD_IMAGE_GRAYSCALE)
+    img = cv2.imread(src)
     blocks = []
     for x in range(0, img.shape[1],s):
         for y in range(0, img.shape[0],s):
             block = np.asarray(img)[x:x+s,y:y+s]
-            if block.shape != (s, s):
+            if block.shape != (s, s, 3):
                 continue
             kp, des = surf.detectAndCompute(block,None)
-            kps = [k.pt for k in kp]
             if len(kp)>0:
-                blocks += [kps]
-    #sb = blocks
-    sb = sorted(blocks)
-    print sb
-    vs = []
-    for i in range(len(sb)-2):
-        v = np.sqrt(np.sum(np.power(np.array(sb[i])-np.array(sb[i+1]), 2)))
-        vs += [v]
-    vs = np.array(vs)
-    return np.percentile(vs, range(0,100,5))
+                blocks += [des]
+    blockdistances = []
+    for ibl1, bl1 in enumerate(blocks):
+        for ibl2, bl2 in enumerate(blocks):
+            if ibl1 != ibl2:
+                    matches = bf.match(bl1, bl2)
+                    matches = sorted(matches, key = lambda x:x.distance)
+                    dists = [m.distance for m in matches]
+                    blockdistances += [(dists, ibl1, ibl2)]
+    bls = sorted([bl[0][0] for bl in blockdistances])
+    hbls = np.histogram(bls, normed=True, bins=np.linspace(0,5,11))
+    return hbls[0]
 
 def get_image_data(fname):
     print fname
@@ -80,10 +82,10 @@ def get_image_data(fname):
     cum_ela_hist = np.cumsum(ela_hist)
     for inh in range(0, len(ela_hist), 10):
         df_row["cela_hist_%d"%inh] = cum_ela_hist[inh]
-    # 
-    # bstats = blockstats_surf(fname, 64)
-    # for i in range(len(bstats)):
-    #     df_row["bstat_64_%d"%i] = bstats[i]
+    
+    bstats = blockstats_surf(fname, 64)
+    for i in range(len(bstats)):
+        df_row["bstat_64_%d"%i] = bstats[i]
     
     # bstats = blockstats(fname,8)
     # for i in range(len(bstats)):

@@ -18,6 +18,19 @@ def make_thumb(fn):
     image.close()
     return thpath
 
+
+def score(img):
+    if not os.path.isfile(img):
+        print "not an image"
+        return -1
+    sc = clf.predict_proba(
+        get_data.get_image_data(img)[vs]
+    )[0,1]
+    return sc
+
+import multiprocessing
+pool = multiprocessing.Pool(4)
+
 def score_folder(path):
     good_files = []
     for root, dirs, files in os.walk(path):
@@ -25,11 +38,11 @@ def score_folder(path):
             if "png" in file or "jpg" in file or "jpeg" in file:
                 good_files += [root + "/" + file]
     responses = []
-    for fi in good_files:
+    thumbs = pool.map(make_thumb, good_files)
+    scores = pool.map(score, good_files)
+    for fi, thumb, sc in zip(good_files, thumbs, scores):
         print "scoring", fi
-        thumb = make_thumb(fi)
         response = {}
-        sc = score(fi)
         response["filename"] = fi
         response["grade"] = sc
         response["thumbnail"] = thumb
@@ -39,11 +52,3 @@ def score_folder(path):
     responses = sorted(responses, key=lambda x: x["grade"], reverse=True)
     return responses
             
-def score(img):
-    if not os.path.isfile(img):
-        print "not an image"
-        return -1
-    sc = clf.predict_proba(
-        get_data.get_image_data(img)[vs]
-    )[0,1]
-    return sc

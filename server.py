@@ -30,8 +30,10 @@ class S(BaseHTTPRequestHandler):
             fi = open("ui/public/index.html", "r")
             self.wfile.write(fi.read())
             fi.close()
-        elif self.path.startswith("/thumb"):
-            p = self.path[1:]
+        elif self.path.endswith("jpg"):
+            p = self.path
+            if p.startswith("/thumb"):
+                p = p[1:]
             mimetype='image/jpg'
             f = open(p) 
             self.send_response(200)
