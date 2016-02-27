@@ -7,12 +7,55 @@
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.1.6/zepto.min.js"></script>
 	</head>
 	<body>
-<div id="start">
-	<input id="path" type="text">
-	<button id="path-btn">Submit path</button>
-</div>
-<div id="list" style="display:none"></div>
-<div id="pic" style="display:none"></div>
-		<script src="script.js"></script>
+		<div id="start">
+			<input id="path" type="text">
+			<button id="path-btn">Submit path</button>
+		</div>
+		<div id="list" style="display:none"></div>
+		<div id="pic" style="display:none"></div>
+<script>
+window.onload = function() {
+	$('#path-btn').on('click', function() {
+		var path = $('#path').val()
+		$('#start').hide()
+		$('#list').show()
+		$('#list').html('<p>Analysing pictures...</p>')
+		$.post('/test', {path: path}, function(list) {
+			console.log(list)
+			showList(list)
+		})
+	})
+}
+
+function showList(list) {
+	createListHTML(list, function(html) {
+		document.getElementById('list').innerHTML = html
+		$('.thumb').on('click', function(e) {
+			showPic(e.target.id, list)
+		})
+	})
+}
+
+function createListHTML(list, callback) {
+	var html = ''
+	list.forEach(function(l) {
+		var item = '<h1>' + l.grade + '</h1>'
+			+ '<p>File: ' + l.filename + '</p>'
+			+ '<img class="thumb" id="' + l.filename + '" src="' + l.thumbnail + '"></img>'
+		html = html + item
+	})
+	callback(html)
+}
+
+function showPic(src) {
+	$('#list').hide()
+	$('#pic').html('<img src="' + src + '"><br><button id="back">Back to list</button>')
+	$('#pic').show()
+	$('#back').on('click', function() {
+		$('#list').show()
+	}) 
+}
+
+</script>
 	</body>
 </html>
