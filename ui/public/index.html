@@ -138,7 +138,7 @@ function createListHTML(list, callback) {
 		'#1a9850',
 		'#006837'
 	]
-	
+        colors.reverse();	
 	list.forEach(function(item) {
 		var n = Math.floor(item.grade * 10) / 10
 		if(n === 1) { n = 0.9 }
@@ -147,7 +147,7 @@ function createListHTML(list, callback) {
 	})
 	sorted.forEach(function(s, index) {
 		if(s.items.length !== 0) {
-			var c = '<div class="list-item"><h1 style="color:' + colors[index] + '">' + s.cat + '</h1>'
+			var c = '<div class="list-item"><h1 style="color:' + colors[index] + '">Level of confidence: ' + s.cat + '</h1>'
 			s.items.forEach(function(item){
 				c = c + '<img class="thumb" id="' + item.filename + '" src="' + item.thumbnail + '"></img>'
 			})

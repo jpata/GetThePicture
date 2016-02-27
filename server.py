@@ -32,7 +32,7 @@ class S(BaseHTTPRequestHandler):
             fi.close()
         elif self.path.endswith("jpg") or self.path.endswith("jpeg"):
             p = self.path
-            if p.startswith("/thumb"):
+            if p.startswith("/"):
                 p = p[1:]
             mimetype='image/jpg'
             f = open(p) 
