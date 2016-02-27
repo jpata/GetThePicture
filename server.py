@@ -30,7 +30,7 @@ class S(BaseHTTPRequestHandler):
             fi = open("ui/public/index.html", "r")
             self.wfile.write(fi.read())
             fi.close()
-        elif self.path.endswith("jpg"):
+        elif self.path.endswith("jpg") or self.path.endswith("jpeg"):
             p = self.path
             if p.startswith("/thumb"):
                 p = p[1:]
