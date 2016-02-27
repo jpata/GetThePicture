@@ -11,21 +11,28 @@ app.get('/', function(req, res) {
 app.get('/script.js', function(req, res) {
 	res.sendFile(__dirname + '/public/script.js')
 })
-
+app.get('/photo/1.png', function(req, res) {
+	res.sendFile(__dirname + '/public/troll.png')
+})
 
 var list = [
 	{
-		filename: 'Filename',
+		filename: '/photo/1.png',
 		thumbnail: '/photo/1.png',
 		grade: 1
 	},
 	{
-		filename: 'Filename',
+		filename: '/photo/1.png',
 		thumbnail: '/photo/1.png',
 		grade: 0.5
 	},
 	{
-		filename: 'Filename',
+		filename: '/photo/1.png',
+		thumbnail: '/photo/1.png',
+		grade: 0.555
+	},
+	{
+		filename: '/photo/1.png',
 		thumbnail: '/photo/1.png',
 		grade: 0.2
 	}
