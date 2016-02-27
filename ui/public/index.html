@@ -1,0 +1,22 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+  <link rel="stylesheet" href="style.css">
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.1.6/zepto.min.js"></script>
+	</head>
+	<body>
+		<input id="path" type="text">
+		<button id="path-btn">Submit path</button>
+		<script>
+$('#path-btn').on('click', function() {
+	var path = $('#path').val()
+	$.post('/test', {path: path}, function(r) {
+		console.log(r)
+	})
+})
+
+		</script>
+	</body>
+</html>
