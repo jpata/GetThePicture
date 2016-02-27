@@ -48,6 +48,15 @@ border-color: #46b8da;
 	width: 600px;
 }
 
+#high {
+	color: #a50026
+	margin-left: 20px
+}
+#low {
+	color: #006837
+	margin-left: 20px
+}
+
 		</style>
 	</head>
 	<body>
@@ -90,7 +99,7 @@ function showList(list) {
 	createListHTML(list, function(html) {
 		document.getElementById('list').innerHTML = html
 		$('.thumb').on('click', function(e) {
-			showPic(e.target.id, list)
+			showPic(e.target.id)
 		})
 		$('#back-start').on('click', function() {
 			start()
@@ -137,24 +146,26 @@ function createListHTML(list, callback) {
 		'#66bd63',
 		'#1a9850',
 		'#006837'
-	]
+    ]
+
+
         colors.reverse();	
 	list.forEach(function(item) {
 		var n = Math.floor(item.grade * 10) / 10
 		if(n === 1) { n = 0.9 }
-		console.log(n)
 		addToSorted(sorted, item, n)
 	})
 	sorted.forEach(function(s, index) {
 		if(s.items.length !== 0) {
-			var c = '<div class="list-item"><h1 style="color:' + colors[index] + '">Level of confidence: ' + s.cat + '</h1>'
+			var c = '<div class="list-item"><h1 style="color:' + colors[index] + '">Level of Confidence: ' + s.cat + '</h1>'
 			s.items.forEach(function(item){
-				c = c + '<img class="thumb" id="' + item.filename + '" src="' + item.thumbnail + '"></img>'
+				var id = item.filename + 'xxxxx' + colors[index] + 'xxxxx' + s.cat
+				c = c + '<img class="thumb" id="' + id + '" src="' + item.thumbnail + '"></img>'
 			})
 			html = html + c + '</div>'
 		}
 	})
-	html = '<div class="header"><button id="back-start">Back</button></div><br/><br/>' + html
+	html = '<div class="header"><button id="back-start">Back</button></div><br/><br/><h2 id="high">HIGH</h2>' + html + '<h2 id="low">LOW</h2>'
 	callback(html)
 }
 
@@ -164,10 +175,15 @@ function addToSorted(sorted, item, n) {
 	}
 }
 
-function showPic(src) {
+function showPic(id) {
 	$('#start').hide()
 	$('#list').hide()
+	var arr = id.split('xxxxx')
+	var src = arr[0]
+	var color = arr[1]
+	var grade = arr[2]
 	var html = '<div class="header">'
+            + '<h1 style="color:' + color + '">Level of Confidence:' + grade +' </h1> '
 		+ '<button id="back">Back to list</button>'
 	+ '</div>'
 	+ '<br>'
