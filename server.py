@@ -12,6 +12,11 @@ Send a POST request::
 """
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import SocketServer
+from cgi import parse_header, parse_multipart
+from urlparse import parse_qs
+import cgi
+import classify
+import json
 
 class S(BaseHTTPRequestHandler):
     def _set_headers(self):
@@ -20,16 +25,41 @@ class S(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        self._set_headers()
-        self.wfile.write("<html><body><h1>hi!</h1></body></html>")
+        if self.path == "/":
+            self._set_headers()
+            fi = open("ui/public/index.html", "r")
+            self.wfile.write(fi.read())
+            fi.close()
+        elif self.path.startswith("/thumb"):
+            p = self.path[1:]
+            mimetype='image/jpg'
+            f = open(p) 
+            self.send_response(200)
+            self.send_header('Content-type',mimetype)
+            self.end_headers()
+            self.wfile.write(f.read())
 
     def do_HEAD(self):
         self._set_headers()
         
     def do_POST(self):
         # Doesn't do anything with posted data
-        self._set_headers()
-        self.wfile.write("<html><body><h1>POST!</h1></body></html>")
+#        self._set_headers()
+        form = cgi.FieldStorage(
+            fp=self.rfile,
+            headers=self.headers,
+            environ={'REQUEST_METHOD':'POST',
+                     'CONTENT_TYPE':self.headers['Content-Type'],
+                     })
+        fd = {}
+        for item in form.list:
+            if item.name == "path":
+                fd["path"] = item.value
+        sc = classify.score_folder(fd["path"])
+        self.send_response(200)
+        self.wfile.write('Content-Type: application/json\r\n')
+        self.end_headers()
+        self.wfile.write(json.dumps(sc))
         
 def run(server_class=HTTPServer, handler_class=S, port=8080):
     server_address = ('', port)
